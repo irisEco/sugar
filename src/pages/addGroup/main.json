@@ -1,0 +1,21 @@
+{
+  "usingComponents": {
+    "van-button": "vant-weapp/button",
+    "van-cell": "vant-weapp/cell",
+    "van-popup": "vant-weapp/popup",
+    "van-datetime-picker": "vant-weapp/datetime-picker",
+    "van-cell-group": "vant-weapp/cell-group",
+    "van-icon": "vant-weapp/icon",
+    "van-field": "vant-weapp/field",
+    "van-switch-cell": "vant-weapp/switch-cell",
+    "van-switch": "vant-weapp/switch",
+    "van-area": "vant-weapp/area",
+    "van-stepper": "vant-weapp/stepper",
+    "van-collapse": "vant-weapp/collapse",
+    "van-collapse-item": "vant-weapp/collapse-item",
+    "van-row": "vant-weapp/row",
+    "van-col": "vant-weapp/col",
+    "van-submit-bar":"vant-weapp/submit-bar",
+    "van-panel":"vant-weapp/panel"
+  }
+}
