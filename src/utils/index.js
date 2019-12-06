@@ -1,3 +1,4 @@
+
 function formatNumber(n) {
   const str = n.toString();
   return str[1] ? str : `0${str}`;
@@ -41,5 +42,5 @@ export default {
   formatNumber,
   formatTime,
   formatDate,
-  formatHour
+  formatHour,
 };

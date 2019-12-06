@@ -8,7 +8,7 @@
             <image height="300" fit="cover" :src="thumb" v-model="addData.src" />
           </div>
           <van-cell-group>
-            <van-field type="text" v-model="addData.title" placeholder="请输入组局标题" @change="bindTitleChange"></van-field>
+            <van-field type="text" required="true" v-model="addData.title" placeholder="请输入组局标题" @change="bindTitleChange"></van-field>
 
             <!-- 开始时间 -->
             <van-cell title="开始时间:" icon="clock-o" is-link required>
@@ -62,20 +62,20 @@
             </div>
 
             <!-- 设置微信提醒 -->
-            <van-cell title="是否提醒" icon="smile-comment-o">
+            <van-cell title="是否微信提醒" icon="smile-comment-o">
               <switch :checked="addData.checkedRemind" bindchange="bindCheckedRemainChange" @change="bindCheckedRemainChange" v-model="addData.checkedRemind" />
             </van-cell>
 
             <!-- 设置微信提醒时间 -->
             <div v-show="addData.checkedRemind">
-              <van-cell title="微信提醒时间:" icon="clock-o" is-link>
+              <van-cell title="提醒时间:" icon="clock-o" is-link>
                 <picker mode="time" :value="addData.remindTime" start="00:00" end="24:00" bindchange="bindRTimeChange" @change="bindRTimeChange">
                   <view class="picker" v-model="addData.remindTime">
                     {{addData.remindTime}}
                   </view>
                 </picker>
               </van-cell>
-              <van-cell title="微信提醒日期:" icon="clock-o" is-link>
+              <van-cell title="提醒日期:" icon="clock-o" is-link>
                 <picker mode="date" :value="addData.remindDate" bindchange="bindRDateChange" @change="bindRDateChange">
                   <view class="picker" v-model="addData.remindDate">
                     {{addData.remindDate}}
@@ -112,25 +112,31 @@
       </van-col>
     </van-row>
 
-    <!-- 弹出确认 -->
+    <!-- 弹出确认框 -->
     <div v-show="makeSure">
       <div class="overlay"></div>
       <div class="overlay-wrap">
         <div class="set-localtion">
-          <van-panel :title="addData.title" :desc="addData.introduction" status="状态" >
+          <van-panel :title="addData.title" :desc="addData.introduction" status="状态">
             <div>
               <van-row class="makeSure-content">
-                    <!-- <span v-show="addData.title!=''">活&nbsp;&nbsp;&nbsp;&nbsp;动:<span>{{addData.title}}</span></p> -->
-                    <!-- <span v-show="addData.introduction!=''">简&nbsp;&nbsp;&nbsp;&nbsp;介:<span>{{addData.introduction}}</span></p> -->
-                    <p v-show="addData.startTime!=''">开始时间:<span>{{addData.startTime}}</span></p>
-                    <p v-show="addData.startDate!=''">开始日期:<span>{{addData.startDate}}</span></p>
-                    <p v-show="addData.region!=''&&addData.detailedAddress!=''">活动地点:<span>{{addData.region[0]}}，{{addData.region[1]}}，{{addData.region[2]}} {{detailedAddress}}</span></p>
+                <p v-show="addData.startTime!=''">开始时间:<span>{{addData.startDate}}-{{addData.startTime}}</span></p>
+                <p v-show="addData.region!=''&&addData.detailedAddress!=''">活动地点:<span>{{addData.region[0]}}，{{addData.region[1]}}，{{addData.region[2]}} {{addData.detailedAddress}}</span></p>
+                <div v-show="!addData.checkedAllDay">
+                  <p>结束时间:<span>{{addData.endDate}}-{{addData.endTime}}</span></p>
+                </div>
+                <div v-show="addData.checkedRemind">
+                  <p>提醒时间:<span>{{addData.remindDate}}-{{addData.remindTime}}</span></p>
+                </div>
+                <div v-show="addData.checkedNumber">
+                  <p>参加人数限制:<span>{{addData.num}}</span></p>
+                </div>
               </van-row>
             </div>
           </van-panel>
           <div class="overlay-footer">
-            <van-button size="small">取消</van-button>
-            <van-button size="small" type="danger">确定</van-button>
+            <van-button round size="small" @click="confirmCancel">取消</van-button>
+            <van-button round size="small" type="info" @click="comfirmDetermine">确定</van-button>
           </div>
         </div>
       </div>
@@ -146,6 +152,8 @@ import {
   formatHour,
   formatDate
 } from '../../utils/index.js'
+
+
 
 export default {
 
@@ -277,8 +285,29 @@ export default {
       this.makeSure = true
       console.log('makeSure: ', this.makeSure)
     },
-    touchForbidden(e) {
-      e.preventDefault()
+    confirmCancel() {
+      console.log('进入 confirmCancel')
+      console.log('picker发送选择改变，携带值为')
+      this.makeSure = false
+    },
+    comfirmDetermine() {
+      console.log('进入 comfirmDetermine')
+      console.log('picker发送选择改变，携带值为', this)
+      let that = this.addData
+      console.log(that)
+      this.$http.post('/addGroup',{
+        data:that
+      }).then((resp)=>{
+        console.log(resp.data)
+      }).catch((err)=>{
+        console.log(err)
+      })
+      console.log('post ok!')
+      this.makeSure = false
+      // wx.switchTab({
+      //   url: 'pages/counter/main'
+      // })
+
     }
   }
 }
@@ -359,23 +388,26 @@ export default {
   margin-bottom: 20px;
   text-align: center;
 }
-.makeSure-content{
-  p{
+
+.makeSure-content {
+  p {
     text-align: left;
-    border-bottom:1rpx solid #eee;
+    border-bottom: 1rpx solid #eee;
     margin-top: 3px;
     font-size: 14px;
     line-height: 24px;
     color: #999;
-    padding:5px;
+    padding: 5px;
 
   }
-  p::after{
-    content:"";
+
+  p::after {
+    content: "";
 
   }
-  span{
-    padding-left:20px;
+
+  span {
+    padding-left: 20px;
   }
 }
 </style>
